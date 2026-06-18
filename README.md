@@ -12,7 +12,7 @@ Optional extras: `rapidrouge[stemmer]` (nltk, for `use_stemmer=True`),
 `rapidrouge[aggregate]` (numpy, for `BootstrapAggregator`), or `rapidrouge[full]`.
 
 Same import, same results as `rouge_score` 0.1.2 — ROUGE-L's
-LCS length is computed with the **Hyyrö bit-parallel algorithm**, so it's far faster
+LCS length is computed with the **Hyyrö bit-parallel algorithm** ([[1]](https://link.springer.com/content/pdf/10.1007/s00453-004-1108-z.pdf), [[2]](https://www.researchgate.net/profile/Jorma-Tarhio/publication/221314026_String_Matching_with_Stopper_Encoding_and_Code_Splitting/links/544ba6dc0cf2bcc9b1d6bdb5/String-Matching-with-Stopper-Encoding-and-Code-Splitting.pdf#page=211), [[3]](https://d1wqtxts1xzle7.cloudfront.net/39402556/psc02-libre.pdf?1445710147=&response-content-disposition=inline%3B+filename%3DA_Bit_Vector_Algorithm_for_Computing_Lev.pdf&Expires=1781780939&Signature=EUi-oiaBm3ekIV2LX8WIm-mhMh4lcqnq34FcWhGJ7tkWZ-dFYbEuC817~1DLghbEV6KlagJLi1kMUqCZVi0nPR6xzE31CC3QW1v4XwjZ0TMweD9rxbjr2HowUr1Nf6frF-XC6x2Wb674mXbA3FytUfJaTj6y4VQYFZpJgnk5xCOY73JLWmt~AWh8F5uI1K-4q~di-3KJlJEgcF2J03KfYUHuMWdbuc63euL2JglDF-96cxNaElgGiOVykbwL7Kjfbun9AO4J0zhaBhMARD3J4RXP-tNe-IzO70yTegAXdVTXOOvqwApbeMx2ZWYPb4rLuvWDrS2i~MsVIdvRwYXdNg__&Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA)), so it's far faster
 on long documents:
 
 ```python
