@@ -1,0 +1,22 @@
+# Python
+# Generated CSVs are large + reproducible, so ignored; the FINDINGS.md report and
+# its PNG charts under benchmarks/out/ ARE tracked (committed as docs).
+comparison_results.csv
+benchmarks/
+scripts/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.hypothesis/
+.ruff_cache/
+build/
+dist/
+*.so
+*.pyd
+
+# Virtual envs
+.venv/
+
+# uv
+# (uv.lock IS committed — it is the shared lockfile)

@@ -1,0 +1,107 @@
+[project]
+name = "rapidrouge"
+version = "0.1.0"
+description = "Fast pure-Python drop-in replacement for rouge-score with a bit-parallel ROUGE-L"
+readme = "README.md"
+# 3.10 floor is LOAD-BEARING: _pure.lcs_length uses int.bit_count(), added in 3.10.
+# Do NOT lower this.
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "William Brach", email = "claudesomm@brch.sk" }]
+keywords = ["rouge", "rouge-l", "rouge-score", "lcs", "bit-parallel", "summarization", "evaluation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+dependencies = []   # stdlib only by default — the whole point
+
+[project.optional-dependencies]
+# Porter stemmer (use_stemmer=True) and rougeLsum split_summaries=True need nltk.
+stemmer = ["nltk>=3.8"]
+# BootstrapAggregator confidence intervals need numpy.
+aggregate = ["numpy>=1.21"]
+# Everything optional at once.
+full = ["nltk>=3.8", "numpy>=1.21"]
+
+[project.urls]
+Homepage = "https://github.com/williambrach/rapidrouge"
+Source = "https://github.com/williambrach/rapidrouge"
+Issues = "https://github.com/williambrach/rapidrouge/issues"
+
+[dependency-groups]              # PEP 735 — dev-only, never published
+# `uv sync` installs the editable package + the test toolchain (the common case).
+test = ["pytest>=7.4", "hypothesis>=6.88", "rouge-score>=0.1.2", "nltk>=3.8", "numpy>=1.21"]
+# Linter + the single-source version bumper.
+dev = ["ruff>=0.5", "bump-my-version>=0.28"]
+# Charts + report generation for benchmarks/findings.py. Kept separate so the
+# common `uv sync` stays lean; pull it in with `uv run --group analysis ...`.
+analysis = ["matplotlib>=3.7"]
+
+[build-system]
+requires = ["hatchling>=1.8"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["rapidrouge"]
+
+# The sdist is scoped to the distribution itself — the repo-only trees
+# (benchmarks/, scripts/, .github/, RELEASING.md) are deliberately left out.
+[tool.hatch.build.targets.sdist]
+include = [
+    "rapidrouge",
+    "tests",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "--strict-markers -q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+# ---------------------------------------------------------------------------
+# Single-source-of-truth version bumping.  One command rewrites the version in
+# both places that must move in lockstep (the distribution version and the
+# package __version__):
+#     uvx bump-my-version bump {major|minor|patch}
+#
+# commit/tag are OFF until the first commit lands.  Flip them to true once the
+# repo has history so each bump also creates the `v<x>` tag that fires release.yml.
+# ---------------------------------------------------------------------------
+[tool.bumpversion]
+current_version = "0.1.0"
+allow_dirty = true
+commit = false
+tag = false
+tag_name = "v{new_version}"
+
+# (A) distribution version. The leading newline keeps this from also matching
+# `current_version = "..."` above (which bump-my-version updates on its own).
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = "\nversion = \"{current_version}\""
+replace = "\nversion = \"{new_version}\""
+
+# (B) package __version__
+[[tool.bumpversion.files]]
+filename = "rapidrouge/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
