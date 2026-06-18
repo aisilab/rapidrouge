@@ -27,33 +27,51 @@ def lcs_length(a, b) -> int:
     """
     if not a or not b:
         return 0
-    # Width optimization: bit-vector over the shorter sequence. Length is symmetric.
-    if len(a) > len(b):
-        a, b = b, a
-    pos: dict = {}
-    for i, t in enumerate(a):
-        pos[t] = pos.get(t, 0) | (1 << i)
-    v = (1 << len(a)) - 1
-    full = v
-    for t in b:
-        m = pos.get(t, 0)
-        u = v & m
-        v = (v + u) | (v - u)
-        v &= full
-    return ((~v) & full).bit_count()
+
+    # Width optimization: build the bit-vector over the SHORTER sequence so the
+    # big integers stay as narrow as possible. LCS length is symmetric, so
+    # choosing the orientation here does not change the result.
+    if len(a) <= len(b):
+        shorter, longer = a, b
+    else:
+        shorter, longer = b, a
+
+    # match_bits[token] has bit i set for every position i where `token` occurs
+    # in `shorter` (Hyyrö's per-character match masks).
+    match_bits: dict = {}
+    for position, token in enumerate(shorter):
+        match_bits[token] = match_bits.get(token, 0) | (1 << position)
+
+    all_ones = (1 << len(shorter)) - 1  # mask covering every valid bit position
+    row = all_ones  # Hyyrö's running bit-vector V (one DP row, all bits set)
+
+    # Sweep the longer sequence one token at a time, advancing the bit-vector.
+    for token in longer:
+        matches = match_bits.get(token, 0)
+        carry = row & matches
+        # (row + carry) | (row - carry) propagates every LCS increment across
+        # all positions in a single word operation (Hyyrö 2004); mask back to
+        # the valid bits afterwards.
+        row = (row + carry) | (row - carry)
+        row &= all_ones
+
+    # Each ZERO bit remaining in `row` accounts for one unit of LCS length.
+    zero_bits = (~row) & all_ones
+    return zero_bits.bit_count()
 
 
 def _lcs_length_dp(a, b) -> int:
     """Reference classic O(n*m) DP LCS length, used only by the test suite."""
     if not a or not b:
         return 0
-    prev = [0] * (len(b) + 1)
-    for x in a:
-        cur = [0] * (len(b) + 1)
-        for j, y in enumerate(b, start=1):
-            if x == y:
-                cur[j] = prev[j - 1] + 1
+    prev_row = [0] * (len(b) + 1)
+    for token_a in a:
+        cur_row = [0] * (len(b) + 1)
+        for j, token_b in enumerate(b, start=1):
+            if token_a == token_b:
+                cur_row[j] = prev_row[j - 1] + 1
             else:
-                cur[j] = prev[j] if prev[j] >= cur[j - 1] else cur[j - 1]
-        prev = cur
-    return prev[len(b)]
+                # equivalently max(prev_row[j], cur_row[j - 1])
+                cur_row[j] = prev_row[j] if prev_row[j] >= cur_row[j - 1] else cur_row[j - 1]
+        prev_row = cur_row
+    return prev_row[len(b)]
