@@ -1,0 +1,53 @@
+# A single tag (v*) builds + publishes the rapidrouge PyPI distribution.
+#
+# Tokenless OIDC Trusted Publishing. Register one publisher on the `rapidrouge`
+# PyPI project pointing at this repo + release.yml, with the environment below.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read            # the publish job requests id-token:write at job level
+
+jobs:
+  # ---- BUILD: rapidrouge (pure) — sdist + single py3-none-any wheel -----------
+  build:
+    name: sdist + wheel (pure)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Build pure sdist + wheel
+        run: uv build --out-dir dist
+      - name: Assert wheel is pure (no .so/.pyd)
+        # Block scalar (run: |) is load-bearing: a single-line `run: ! ...` is
+        # parsed by YAML as a `!` tag and the negation is dropped, inverting the
+        # gate so a *pure* wheel would fail the step. Keep this multi-line.
+        run: |
+          ! unzip -l dist/*.whl | grep -E '\.so$|\.pyd$'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+  # ---- PUBLISH ---------------------------------------------------------------
+  publish:
+    name: publish rapidrouge
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi-rapidrouge
+      url: https://pypi.org/project/rapidrouge/
+    permissions:
+      id-token: write       # OIDC; no API token
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist

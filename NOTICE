@@ -1,0 +1,14 @@
+rapidrouge
+Copyright 2026 William Brach
+
+This product includes software derived from the rouge_score package
+(https://github.com/google-research/google-research/tree/master/rouge),
+Copyright 2022 The rouge_score Authors, licensed under the Apache License,
+Version 2.0. The ROUGE-1/ROUGE-N/ROUGE-L/ROUGE-Lsum scoring algorithms, the
+public interface (RougeScorer, Score, the tokenizer surface), and the n-gram /
+summary-level-LCS routines are faithful reimplementations of that package and
+produce bit-identical results.
+
+The Hyyrö bit-parallel longest-common-subsequence kernel (the pure-Python
+rapidrouge/_pure.py), which replaces the original O(n*m) dynamic-programming LCS
+used for ROUGE-L, is an original contribution by William Brach.

@@ -14,7 +14,7 @@ build/
 dist/
 *.so
 *.pyd
-
+tests/
 # Virtual envs
 .venv/
 
