@@ -1,6 +1,6 @@
 [project]
 name = "rapidrouge"
-version = "0.1.0"
+version = "0.2.0"
 description = "Fast pure-Python drop-in replacement for rouge-score with a bit-parallel ROUGE-L"
 readme = "README.md"
 # 3.10 floor is LOAD-BEARING: _pure.lcs_length uses int.bit_count(), added in 3.10.
@@ -87,7 +87,7 @@ select = ["E", "F", "W", "I"]
 # repo has history so each bump also creates the `v<x>` tag that fires release.yml.
 # ---------------------------------------------------------------------------
 [tool.bumpversion]
-current_version = "0.1.0"
+current_version = "0.2.0"
 allow_dirty = true
 commit = false
 tag = false
